@@ -1,16 +1,20 @@
 <script lang="ts">
-  import { Router, Link, Route } from "svelte-navigator";
   import Nav from "./lib/Nav.svelte";
   import Footer from "./lib/Footer.svelte";
-  import pages from "./routes";
   import Heading from "./lib/Heading.svelte";
+  import { Router } from "svelte-hash-router";
+  import routing from "./routes";
+  import type { page as pageType } from "./routes";
+  import type { SvelteComponentDev } from "svelte/internal";
+  const basepath = process.env.NODE_ENV === "production" ? "/" : "/"; // TODO: change this
+  
 </script>
 
 <main>
   <Nav />
-  <Router>
-    <div class="m-5" />
-    {#each pages as page}
+  <div class="m-5" />
+  <!-- <Router basepath={basepath}>
+    {#each routes.pages as page}
       <Route path={page.location}>
         <svelte:component this={page.page} />
       </Route>
@@ -18,7 +22,8 @@
     <Route path="*">
       <Heading>Page not found 😭</Heading>
     </Route>
-  </Router>
+  </Router> -->
+  <Router />
   <Footer />
 </main>
 

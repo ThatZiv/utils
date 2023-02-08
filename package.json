@@ -1,18 +1,21 @@
 {
   "name": "utilities",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port=18000",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "predeploy": "vite build && tailwindcss -i ./src/app.css -o ./dist/output.css",
+    "deploy": "npx gh-pages -d dist"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.2",
     "@tsconfig/svelte": "^3.0.0",
     "autoprefixer": "^10.4.13",
+    "gh-pages": "^5.0.0",
     "postcss": "^8.4.21",
     "svelte": "^3.55.1",
     "svelte-check": "^2.10.3",
@@ -24,6 +27,6 @@
   "dependencies": {
     "flowbite": "^1.6.3",
     "svelte-copy": "^1.3.0",
-    "svelte-navigator": "^3.2.2"
+    "svelte-hash-router": "^1.0.1"
   }
 }

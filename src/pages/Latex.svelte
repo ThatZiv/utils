@@ -5,10 +5,13 @@
         "g(x)=\\int_0^xt^2dt",
         "\\frac{d}{dx}f(x)=f'(x)",
     ];
-    let input = random[Math.floor(Math.random() * random.length)];
+    let input = localStorage.getItem("latex") || random[Math.floor(Math.random() * random.length)];
     let latex;
     const baseUrl = "https://latex.codecogs.com/gif.latex?";
-    $: latex = baseUrl + encodeURIComponent(`\\dpi{300} ${input}`);
+    $: {
+        latex = baseUrl + encodeURIComponent(`\\dpi{300} ${input}`);
+        localStorage.setItem("latex", input)
+    }
 </script>
 
 <label
