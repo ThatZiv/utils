@@ -41,17 +41,18 @@
             >
                 {#each pages.pages as page}
                     {#if !page?.hidden}
-                    <li>
-                        <a
-                            href={"/#"+page.location}
-                            class={`block py-2 pl-3 pr-4 text-white ${
-                                window.location.hash == page.location
-                                    ? "text-blue-700 pointer-events-none"
-                                    : "text-gray-20"
-                            } rounded md:bg-transparent md:p-0 dark:text-white`}
-                            aria-current="page">{page.label}</a
-                        >
-                    </li>
+                        <li>
+                            <a
+                                href={"/#" + page.location}
+                                class={`block py-2 pl-3 pr-4 ${
+                                    "/"+window.location.hash === "/#" + page.location // TODO: Make this work again 
+                                        ?  "text-white"/* "text-blue-700 pointer-events-none" */ 
+                                        : "text-white"
+                                } rounded md:bg-transparent md:p-0`}
+                                aria-current="page"
+                                >{page.label}
+                            </a>
+                        </li>
                     {/if}
 
                     <!--  <li>

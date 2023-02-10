@@ -3,6 +3,7 @@ import Home from "./pages/Home.svelte";
 //@ts-ignore
 import Latex from "./pages/Latex.svelte";
 import NotFound from "./pages/NotFound.svelte";
+import QR from "./pages/QR.svelte";
 import type { SvelteComponentDev } from "svelte/internal";
 
 type page = {
@@ -15,7 +16,8 @@ type page = {
 const pages: page[] = [
     { label: "Home", location: "/", page: Home },
     { label: "LaTeX Editor", location: "/latex", page: Latex },
-    { label: "Not Found", hidden: true, location: "*", page: NotFound}
+    { label: "QR Generator", location: "/qrcode", page: QR},
+    { label: "Not Found", hidden: true, location: "*", page: NotFound},
 ]
 
 export type { page };

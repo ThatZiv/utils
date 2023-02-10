@@ -6,23 +6,22 @@
   import routing from "./routes";
   import type { page as pageType } from "./routes";
   import type { SvelteComponentDev } from "svelte/internal";
+  import Alert from "./lib/Alert.svelte";
+  import { toasts } from "./assets/alerts";
   const basepath = process.env.NODE_ENV === "production" ? "/" : "/"; // TODO: change this
-  
 </script>
 
 <main>
   <Nav />
   <div class="m-5" />
-  <!-- <Router basepath={basepath}>
-    {#each routes.pages as page}
-      <Route path={page.location}>
-        <svelte:component this={page.page} />
-      </Route>
-    {/each}
-    <Route path="*">
-      <Heading>Page not found 😭</Heading>
-    </Route>
-  </Router> -->
+  {#each $toasts as toast (toast.id)}
+    <Alert
+      message={toast.message}
+      title={toast.title}
+      id={toast.id}
+      on:click={() => alert("sd")}
+    />
+  {/each}
   <Router />
   <Footer />
 </main>
