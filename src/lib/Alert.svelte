@@ -1,13 +1,15 @@
 <script lang="ts">
     import { dismissToast } from "../assets/alerts";
+    import { fade } from 'svelte/transition'
     export let message;
     export let title;
     export let id;
   </script>
 
 <div
-    class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+    class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 hover:bg-red-50 hover:line-through cursor-pointer dark:text-blue-400"
     role="alert" on:click={()=>dismissToast(id)} on:keydown={()=>dismissToast(id)} on:keyup={()=>dismissToast(id)}
+    transition:fade
 >
     <svg
         aria-hidden="true"
@@ -23,6 +25,6 @@
     >
     <span class="sr-only">Info</span>
     <div>
-        <span class="font-bold">{title}</span> {message}
+        <span class="font-bold">{title||""}</span> {message}
     </div>
 </div>

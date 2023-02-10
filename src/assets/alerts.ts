@@ -2,7 +2,7 @@ import type { type } from 'os'
 import { writable } from 'svelte/store'
 
 export type toast = {
-    title: string,
+    title: string|undefined,
     message: string,
     id: number,
     type: "info" | "danger" | "success" | "warning",
