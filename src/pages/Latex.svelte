@@ -5,12 +5,14 @@
         "g(x)=\\int_0^xt^2dt",
         "\\frac{d}{dx}f(x)=f'(x)",
     ];
-    let input = localStorage.getItem("latex") || random[Math.floor(Math.random() * random.length)];
+    let input =
+        localStorage.getItem("latex") ||
+        random[Math.floor(Math.random() * random.length)];
     let latex;
     const baseUrl = "https://latex.codecogs.com/gif.latex?";
     $: {
         latex = baseUrl + encodeURIComponent(`\\dpi{300} ${input}`);
-        localStorage.setItem("latex", input)
+        localStorage.setItem("latex", input);
     }
 </script>
 
@@ -29,6 +31,19 @@
     <img src={latex} class="invert" alt="img response" />
 {/if}
 <a href={latex} download="output"><button>Output</button></a>
+{#if input}
+<a
+    href={`https://latex.codecogs.com/svg.download?${encodeURIComponent(
+        input
+    )}`}
+    download="output.svg"
+    ><button
+        type="button"
+        class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+        >Download</button
+    ></a
+>
+{/if}
 <button
     class="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
     on:click={() => {
