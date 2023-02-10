@@ -127,7 +127,8 @@
 <div
     class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
 >
-    <ul class="flex flex-wrap -mb-px">
+<p class="my-4 text-lg text-gray-200 text-left">Create your own {active.toLocaleLowerCase()}-encoded QR Code.</p>
+<ul class="flex flex-wrap -mb-px">
         {#each sections as section}
             <li class="mr-2">
                 <!-- svelte-ignore a11y-invalid-attribute -->

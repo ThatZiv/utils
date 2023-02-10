@@ -16,7 +16,7 @@ type page = {
 const pages: page[] = [
     { label: "Home", location: "/", page: Home },
     { label: "LaTeX Editor", location: "/latex", page: Latex },
-    { label: "QR Code", location: "/qrcode", page: QR},
+    { label: "QR Generator", location: "/qrcode", page: QR},
     { label: "Not Found", hidden: true, location: "*", page: NotFound},
 ]
 

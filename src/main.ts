@@ -1,7 +1,7 @@
 import './app.css'
 import routing from "./routes"
 import type { page as pageType } from "./routes"
-import { routes} from "svelte-hash-router";
+import { routes } from "svelte-hash-router";
 //@ts-ignore
 import App from './App.svelte'
 
