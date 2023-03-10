@@ -4,7 +4,7 @@
     import { addToast } from "../assets/alerts";
     import type { InferType } from "yup";
     import { writable } from "svelte/store";
-    import schemas from "../lib/forms/qr";
+    import schemas from "../lib/forms"
     const input = writable<string>(""); // this is the qr img src
     let active = "Text";
     const sections: Array<string> = ["Text", "URL", "Email", "Phone", "WI-FI"];
