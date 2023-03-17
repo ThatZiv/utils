@@ -1,5 +1,9 @@
 import { object, string, number, boolean, date } from 'yup';
 import utils from '../../utils';
+
+type encryption = "WPA" | "WEP" | "none"
+type otpType = "totp" | "hotp"
+
 // all schemas used in the qr page
 const schemas = {
     text: object({ text: string().required("Text is required") }),
@@ -25,8 +29,30 @@ const schemas = {
         ssid: string().required("Network name required"),
         user: string().optional(),
         pwd: string().optional(),
-        encryption: string<"WPA"|"WEP"|"none">().required(),
+        encryption: string<encryption>().required(),
         hidden: boolean().required()
+    }),
+    // https://github.com/google/google-authenticator/wiki/Key-Uri-Format#examples
+    otp: object().shape({
+        type: string<otpType>().default("totp").required(),
+        label: string().matches(utils.patterns.otp.label, "Valid label is required")
+            .required("Label is required"),
+        params: object().shape({
+            secret: string().required("Secret is required"),
+            issuer: string().optional(),
+            algorithm: string<"SHA1" | "SHA256" | "SHA512">().default("SHA1").optional(),
+            digits: number<6 | 8>().default(6).optional(),
+            counter: number().when("type", {
+                is: "hotp",
+                then: (schema) => schema,
+                otherwise: null
+            }),
+            period: number().when("type", {
+                is: "totp",
+                then: (schema) => schema,
+                otherwise: null
+            })
+        })
     })
 };
 

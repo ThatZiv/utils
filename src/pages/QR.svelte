@@ -4,10 +4,17 @@
     import { addToast } from "../assets/alerts";
     import type { InferType } from "yup";
     import { writable } from "svelte/store";
-    import schemas from "../lib/forms"
+    import schemas from "../lib/forms";
     const input = writable<string>(""); // this is the qr img src
     let active = "Text";
-    const sections: Array<string> = ["Text", "URL", "Email", "Phone", "WI-FI"];
+    const sections: Array<string> = [
+        "Text",
+        "URL",
+        "Email",
+        "Phone",
+        "WI-FI",
+        "OTP",
+    ];
     let activeStyling =
         "text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500";
     const toQR = (content: string): string =>
@@ -112,7 +119,7 @@
                 for (let [k, v] of Object.entries(mappings)) {
                     wifiStr += `${k}:${$wifiForm[v]};`;
                 }
-                console.log(wifiStr)
+                console.log(wifiStr);
                 input.set(toQR(wifiStr));
             })
             .catch((err) => {
@@ -122,13 +129,22 @@
                 }
             });
     };
+
+    // otp form
+    const otpForm = writable<InferType<typeof schemas.otp>>({
+        type: "totp",
+        label: "",
+        
+    })
 </script>
 
 <div
     class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
 >
-<p class="my-4 text-lg text-gray-200 text-left">Create your own {active.toLocaleLowerCase()}-encoded QR Code.</p>
-<ul class="flex flex-wrap -mb-px">
+    <p class="my-4 text-lg text-gray-200 text-left">
+        Create your own {active.toLocaleLowerCase()}-encoded QR Code.
+    </p>
+    <ul class="flex flex-wrap -mb-px">
         {#each sections as section}
             <li class="mr-2">
                 <!-- svelte-ignore a11y-invalid-attribute -->
@@ -362,6 +378,60 @@
                 on:click={handleWifi}
                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                 >Generate WI-FI QR</button
+            >
+        </div>
+    {:else if active == "OTP"}
+        <div class={`p-4 rounded-lg bg-gray-800`}>
+            <div class="grid gap-4 mb-6 md:grid-cols-2">
+                <div class="mb-6">
+                    <label
+                        for="wifi.ssid"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Network name</label
+                    >
+                    <input
+                        type="text"
+                        id="wifi.ssid"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="SSID (required)"
+                        bind:value={$wifiForm.ssid}
+                        required
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="wifi.user"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Username</label
+                    >
+                    <input
+                        type="text"
+                        id="wifi.user"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Optional"
+                        bind:value={$wifiForm.user}
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="wifi.pwd"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Password</label
+                    >
+                    <input
+                        type="password"
+                        id="wifi.pwd"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Optional"
+                        bind:value={$wifiForm.pwd}
+                    />
+                </div>
+            </div>
+            <button
+                type="button"
+                on:click={handleWifi}
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                >Generate OTP Auth QR</button
             >
         </div>
     {/if}
