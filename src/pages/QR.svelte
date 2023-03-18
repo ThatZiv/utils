@@ -4,10 +4,17 @@
     import { addToast } from "../assets/alerts";
     import type { InferType } from "yup";
     import { writable } from "svelte/store";
-    import schemas from "../lib/forms"
+    import schemas from "../lib/forms";
     const input = writable<string>(""); // this is the qr img src
     let active = "Text";
-    const sections: Array<string> = ["Text", "URL", "Email", "Phone", "WI-FI"];
+    const sections: Array<string> = [
+        "Text",
+        "URL",
+        "Email",
+        "Phone",
+        "WI-FI",
+        "OTP",
+    ];
     let activeStyling =
         "text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500";
     const toQR = (content: string): string =>
@@ -112,11 +119,51 @@
                 for (let [k, v] of Object.entries(mappings)) {
                     wifiStr += `${k}:${$wifiForm[v]};`;
                 }
-                console.log(wifiStr)
                 input.set(toQR(wifiStr));
             })
             .catch((err) => {
                 console.log(err);
+                for (let e of err.errors) {
+                    addToast({ message: e.toString() });
+                }
+            });
+    };
+
+    // otp form
+    const otpForm = writable<InferType<typeof schemas.otp>>({
+        type: "totp",
+        label: "",
+        params: {
+            secret: "",
+            issuer: "",
+            algorithm: "SHA1",
+            digits: 6,
+            counter: null,
+            period: 30,
+        },
+    });
+    const handleOtp = () => {
+        input.set("");
+        schemas.otp
+            .validate($otpForm)
+            .then(() => {
+                
+                let final = `otpauth://${$otpForm.type}/${$otpForm.label}?`;
+                if ($otpForm.type == "totp") { //  make period when otp.type is totp
+                    $otpForm.params.counter = null;
+                } else {
+                    $otpForm.params.period = 30;
+                }
+                $otpForm.params.secret = $otpForm.params.secret.toUpperCase(); // make secret all caps (this needs to be done for it to work)
+                //$otpForm.params.issuer = $otpForm.label.split(':')[0]
+                for (let [k, v] of Object.entries($otpForm.params)) {
+                    if (k && v) final += `${k}=${v}&`;
+                }
+                final = final.substring(0, final.length - 1); // strip out last &
+                input.set(toQR(final));
+                $otpForm.params.secret = ""; // clear password after submit
+            })
+            .catch((err) => {
                 for (let e of err.errors) {
                     addToast({ message: e.toString() });
                 }
@@ -127,8 +174,10 @@
 <div
     class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
 >
-<p class="my-4 text-lg text-gray-200 text-left">Create your own {active.toLocaleLowerCase()}-encoded QR Code.</p>
-<ul class="flex flex-wrap -mb-px">
+    <p class="my-4 text-lg text-gray-200 text-left">
+        Create your own {active.toLocaleLowerCase()}-encoded QR Code.
+    </p>
+    <ul class="flex flex-wrap -mb-px">
         {#each sections as section}
             <li class="mr-2">
                 <!-- svelte-ignore a11y-invalid-attribute -->
@@ -362,6 +411,154 @@
                 on:click={handleWifi}
                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                 >Generate WI-FI QR</button
+            >
+        </div>
+    {:else if active == "OTP"}
+        <div class={`p-4 rounded-lg bg-gray-800`}>
+            <div class="grid gap-4 mb-6 md:grid-cols-2">
+                <div class="mb-6">
+                    <label
+                        for="otp.type"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Type</label
+                    >
+                    <!-- <input
+                        type="text"
+                        id="otp.type"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="totp or hotp"
+                        bind:value={$otpForm.type}
+                        required
+                    /> -->
+                    <select
+                        bind:value={$otpForm.type}
+                        id="otp.type"
+                        class="block w-full h-1/2 p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    >
+                        <option value="totp" selected>TOTP</option>
+                        <option value="hotp">HOTP</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="otp.label"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Label</label
+                    >
+                    <input
+                        type="text"
+                        id="otp.label"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Name:alice@google.com"
+                        bind:value={$otpForm.label}
+                        required
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="otp.params.secret"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Secret</label
+                    >
+                    <input
+                        type="password"
+                        id="otp.params.secret"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="mysecretkey"
+                        bind:value={$otpForm.params.secret}
+                        required
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="otp.params.issuer"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Issuer</label
+                    >
+                    <input
+                        type="text"
+                        id="otp.params.issuer"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Provider (recommended)"
+                        bind:value={$otpForm.params.issuer}
+                    />
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="otp.params.algo"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Algorithm</label
+                    >
+                    <!-- <input
+                        type="text"
+                        id="otp.params.algo"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="SHA1 (default)"
+                        bind:value={$otpForm.params.algorithm}
+                    /> -->
+                    <select
+                        bind:value={$otpForm.params.algorithm}
+                        id="otp.params.type"
+                        class="block w-full h-1/2 p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    >
+                        <option value="SHA1" selected>SHA1</option>
+                        <option value="SHA256">SHA256</option>
+                        <option value="SHA512">SHA512</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label
+                        for="otp.params.digits"
+                        class="block mb-2 text-sm text-left font-medium dark:text-white"
+                        >Digits</label
+                    >
+                    <input
+                        type="number"
+                        id="otp.params.digits"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="6 (default)"
+                        bind:value={$otpForm.params.digits}
+                    />
+                </div>
+                {#if $otpForm.type == "hotp"}
+                    <div class="mb-6">
+                        <label
+                            for="otp.params.counter"
+                            class="block mb-2 text-sm text-left font-medium dark:text-white"
+                            >Counter</label
+                        >
+                        <input
+                            type="number"
+                            id="otp.params.counter"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder={Math.floor(
+                                Math.random() * 100000
+                            ).toString()}
+                            bind:value={$otpForm.params.counter}
+                        />
+                    </div>
+                {:else}
+                    <div class="mb-6">
+                        <label
+                            for="otp.params.period"
+                            class="block mb-2 text-sm text-left font-medium dark:text-white"
+                            >Period</label
+                        >
+                        <input
+                            type="number"
+                            id="otp.params.period"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="30"
+                            bind:value={$otpForm.params.period}
+                        />
+                    </div>
+                {/if}
+            </div>
+            <button
+                type="button"
+                on:click={handleOtp}
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                >Generate OTP Auth QR</button
             >
         </div>
     {/if}
