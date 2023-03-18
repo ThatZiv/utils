@@ -160,7 +160,6 @@
                     if (k && v) final += `${k}=${v}&`;
                 }
                 final = final.substring(0, final.length - 1); // strip out last &
-                console.log(final);
                 input.set(toQR(final));
                 $otpForm.params.secret = ""; // clear password after submit
             })
