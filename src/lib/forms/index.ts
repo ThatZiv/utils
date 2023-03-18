@@ -35,23 +35,24 @@ const schemas = {
     // https://github.com/google/google-authenticator/wiki/Key-Uri-Format#examples
     otp: object().shape({
         type: string<otpType>().default("totp").required(),
-        label: string().matches(utils.patterns.otp.label, "Valid label is required")
-            .required("Label is required"),
+        label: string().required("Label is required"),
+            // .matches(utils.patterns.otp.label, "Valid label is required"),
         params: object().shape({
-            secret: string().required("Secret is required"),
+            secret: string().matches(utils.patterns.otp.secret, "Symbols cannot be in your secret")
+                .required("Secret is required"),
             issuer: string().optional(),
             algorithm: string<"SHA1" | "SHA256" | "SHA512">().default("SHA1").optional(),
             digits: number<6 | 8>().default(6).optional(),
             counter: number().when("type", {
                 is: "hotp",
                 then: (schema) => schema,
-                otherwise: null
-            }),
+                otherwise: (schema) => schema.optional()
+            }).nullable(),
             period: number().when("type", {
                 is: "totp",
-                then: (schema) => schema,
+                then: (schema) => schema.default(30),
                 otherwise: null
-            })
+            }).nullable()
         })
     })
 };
