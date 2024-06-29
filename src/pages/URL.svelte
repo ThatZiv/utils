@@ -24,7 +24,6 @@
         },
     };
     const handleSubmit = async (e) => {
-        console.log(captcha);
         try {
             if (!captchaToken) {
                 addToast({
@@ -40,6 +39,7 @@
             return;
         }
         res = api.create(input, captchaToken);
+        captcha.reset();
         addToast({
             message: "Creating URL …"
         });
@@ -94,6 +94,9 @@
             </button>
         </Card>
     {:catch err}
-        <Card title={err.name} description={err.message}/>
+        <Card title={err.response?.data?.error ?? err.name} description={err.message}/>
+        {#if err.response?.status === 400}
+            <p class="text-sm text-gray-400">You may have to refresh this page.</p>
+        {/if}
     {/await}
 {/if}
