@@ -16,12 +16,6 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - name: "check is secret can read"
-        env:
-          super_secret: ${{ secrets.GH_ACCESS_TOKEN }}
-        if: ${{ env.super_secret == '' }}
-        run: 'echo "echo the secret \"MY_SECRET\" has not been made; echo please go to \"settings \> secrets \> actions\" to create it"'
-
       - name: Restore node_modules from cache
         uses: actions/cache@v2
         with:
