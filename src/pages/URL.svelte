@@ -1,28 +1,37 @@
 <script lang="ts">
     import axios from "axios";
+    import HCaptcha from "svelte-hcaptcha";
     import type { InferType } from "yup";
     import { addToast } from "../assets/alerts";
     import Card from "../lib/Card.svelte";
     import schemas from "../lib/forms";
     import Loader from "../lib/Loader.svelte";
     import { copy } from 'svelte-copy';
+    let input = "";
+    let captcha;
+    let captchaToken = "";
+    let res;
     // api wrapper from https://github.com/ThatZiv/urlshorten/blob/master/client/src/api.js
     const api = {
         api: axios.create({ baseURL: "https://s.zavaar.net/api" }),
-        create: function (url: string) {
+        create: function (url: string, hcaptchaToken: string) {
             return this.api
-                .post(`/create?url=${encodeURIComponent(url)}`)
+                .post(`/create?url=${encodeURIComponent(url)}&hcaptcha=${encodeURIComponent(hcaptchaToken)}`)
                 .then((response) => response.data);
         },
         get: function (id: string) {
             return this.api.get(`/get/${id}`).then((response) => response.data);
         },
     };
-
-    let input = "";
-    let res;
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        console.log(captcha);
         try {
+            if (!captchaToken) {
+                addToast({
+                    message: "Please complete the captcha",
+                });
+                return;
+            }
             await schemas.url.validate({ url: input });
         } catch (err) {
             addToast({
@@ -30,7 +39,7 @@
             });
             return;
         }
-        res = api.create(input);
+        res = api.create(input, captchaToken);
         addToast({
             message: "Creating URL …"
         });
@@ -66,6 +75,9 @@
                 >
                 <span class="sr-only">Search</span>
             </button>
+            <div class="mt-3">
+            <HCaptcha sitekey="9f24247e-be32-4234-a548-c8aedbc48320" bind:this={captcha} on:success={(e)=>{captchaToken = e.detail.token}} on:error={()=>{addToast("Captcha failure"); captcha.reset();}} />
+            </div>
         </div>
     </div>
 </form>
