@@ -18,9 +18,7 @@
     let activeStyling =
         "text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500";
     const toQR = (content: string): string =>
-        `https://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=L&choe=UTF-8&chl=${encodeURIComponent(
-            content
-        )}`;
+        `https://qrcode.tec-it.com/API/QRCode?data=${encodeURIComponent(content)}&backcolor=%23ffffff&size=small&quietzone=1&errorcorrection=H`;
 
     // text form
     const textForm = writable<InferType<typeof schemas.text>>({ text: "" });
