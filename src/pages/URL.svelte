@@ -13,14 +13,17 @@
     let res;
     // api wrapper from https://github.com/ThatZiv/urlshorten/blob/master/client/src/api.js
     const api = {
-        api: axios.create({ baseURL: "https://s.zavaar.net/api" }),
+        api: axios.create({ baseURL: "https://s.zavaar.net" }),
         create: function (url: string, hcaptchaToken: string) {
             return this.api
-                .post(`/create?url=${encodeURIComponent(url)}&hcaptcha=${encodeURIComponent(hcaptchaToken)}`)
+                .post(`/short`, {
+                    url,
+                    hcaptchaToken,
+                })
                 .then((response) => response.data);
         },
         get: function (id: string) {
-            return this.api.get(`/get/${id}`).then((response) => response.data);
+            return this.api.get(`/${id}`).then((response) => response.data);
         },
     };
     const handleSubmit = async (e) => {
@@ -86,9 +89,9 @@
     {#await res}
         <Loader open />
     {:then data}
-        <Card title="Shortened URL" description={data.shortened}>
+        <Card title="Shortened URL" description={data.short}>
             <p></p>
-            <button use:copy={data.shortened} class="inline-flex items-center text-blue-600 bg-gray-100 hover:bg-gray-300">
+            <button use:copy={data.short} class="inline-flex items-center text-blue-600 bg-gray-100 hover:bg-gray-300">
                 Copy
                 <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path><path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path></svg>
             </button>
