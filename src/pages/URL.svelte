@@ -16,7 +16,7 @@
         api: axios.create({ baseURL: "https://s.zavaar.net" }),
         create: function (url: string, hcaptchaToken: string) {
             return this.api
-                .post(`/`, {
+                .post(`/short`, {
                     url,
                     hcaptchaToken,
                 })
